@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Politique de confidentialité - Sendit pour Google Sheets</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.8;
+            color: #333;
+        }
+        .header {
+            background: #46508f;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 { font-size: 2em; margin-bottom: 10px; }
+        h2 {
+            color: #46508f;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        p { margin-bottom: 15px; }
+        ul { margin-left: 30px; margin-bottom: 15px; }
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            background: #f8f9fa;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Politique de confidentialité</h1>
+        <p>Sendit pour Google Sheets</p>
+    </div>
+
+    <div class="container">
+        <p><strong>Dernière mise à jour :</strong> 10 décembre 2024</p>
+
+        <h2>1. Introduction</h2>
+        <p>
+            Cette politique de confidentialité décrit comment l'add-on "Sendit pour Google Sheets" 
+            collecte, utilise et protège vos données personnelles.
+        </p>
+
+        <h2>2. Données collectées</h2>
+        <p>L'add-on collecte uniquement les données nécessaires à son fonctionnement :</p>
+        <ul>
+            <li><strong>Clés API Sendit</strong> : Public Key et Secret Key pour l'authentification avec l'API Sendit</li>
+            <li><strong>Ville de ramassage</strong> : ID de votre ville de ramassage configurée</li>
+            <li><strong>Données de feuille de calcul</strong> : Les informations de livraison que vous saisissez dans votre Google Sheet</li>
+        </ul>
+
+        <h2>3. Utilisation des données</h2>
+        <p>Vos données sont utilisées exclusivement pour :</p>
+        <ul>
+            <li>Authentifier votre compte Sendit via l'API</li>
+            <li>Créer des livraisons sur la plateforme Sendit</li>
+            <li>Synchroniser les statuts de vos livraisons</li>
+            <li>Générer des étiquettes de livraison</li>
+        </ul>
+
+        <h2>4. Stockage des données</h2>
+        <p>Les données sont stockées de manière sécurisée :</p>
+        <ul>
+            <li><strong>Clés API</strong> : Stockées dans PropertiesService de Google (chiffré, accessible uniquement par vous)</li>
+            <li><strong>Tokens d'authentification</strong> : Mis en cache temporairement (1 heure) dans CacheService</li>
+            <li><strong>Données de livraison</strong> : Restent dans votre Google Sheet (sous votre contrôle)</li>
+            <li><strong>Cache des villes</strong> : Stocké dans une feuille cachée de votre document</li>
+        </ul>
+        <p><strong>Important :</strong> Aucune donnée n'est stockée sur des serveurs externes. Tout reste dans votre compte Google.</p>
+
+        <h2>5. Partage des données</h2>
+        <p>Vos données ne sont <strong>jamais partagées</strong> avec des tiers, sauf :</p>
+        <ul>
+            <li>Avec l'API Sendit (nécessaire pour créer/suivre les livraisons)</li>
+            <li>Avec Google (infrastructure d'hébergement de l'add-on)</li>
+        </ul>
+        <p>Aucune donnée n'est vendue, louée ou partagée à des fins commerciales.</p>
+
+        <h2>6. Sécurité</h2>
+        <p>Mesures de sécurité en place :</p>
+        <ul>
+            <li>Chiffrement des données par Google</li>
+            <li>Communication HTTPS uniquement</li>
+            <li>Tokens d'authentification à durée limitée (1 heure)</li>
+            <li>Pas de stockage en clair des identifiants</li>
+            <li>Isolation des données par utilisateur</li>
+        </ul>
+
+        <h2>7. Vos droits</h2>
+        <p>Vous avez le droit de :</p>
+        <ul>
+            <li><strong>Accéder</strong> à vos données (disponibles dans votre Google Sheet)</li>
+            <li><strong>Modifier</strong> vos données (via la configuration de l'add-on)</li>
+            <li><strong>Supprimer</strong> vos données (désinstallez l'add-on ou supprimez les propriétés)</li>
+            <li><strong>Exporter</strong> vos données (téléchargez votre Google Sheet)</li>
+        </ul>
+
+        <h2>8. Permissions requises</h2>
+        <p>L'add-on demande les permissions suivantes :</p>
+        <ul>
+            <li><strong>spreadsheets.currentonly</strong> : Accès au Google Sheet actuel uniquement</li>
+            <li><strong>script.container.ui</strong> : Afficher l'interface utilisateur (sidebar, dialogs)</li>
+            <li><strong>script.external_request</strong> : Communiquer avec l'API Sendit</li>
+        </ul>
+
+        <h2>9. Cookies et tracking</h2>
+        <p>L'add-on <strong>n'utilise pas</strong> :</p>
+        <ul>
+            <li>Cookies de tracking</li>
+            <li>Outils d'analyse (Google Analytics, etc.)</li>
+            <li>Publicités</li>
+            <li>Tracking comportemental</li>
+        </ul>
+
+        <h2>10. Conformité RGPD</h2>
+        <p>Pour les utilisateurs de l'Union Européenne :</p>
+        <ul>
+            <li>Consentement explicite requis lors de l'installation</li>
+            <li>Droit à l'oubli respecté (suppression des données)</li>
+            <li>Droit à la portabilité (export des données)</li>
+            <li>Transparence totale sur l'utilisation des données</li>
+        </ul>
+
+        <h2>11. Modifications de la politique</h2>
+        <p>
+            Nous nous réservons le droit de modifier cette politique de confidentialité. 
+            Les modifications seront publiées sur cette page avec une mise à jour de la date.
+        </p>
+
+        <h2>12. Contact</h2>
+        <p>Pour toute question concernant cette politique de confidentialité :</p>
+        <ul>
+            <li><strong>Email :</strong> chrittyassine@gmail.com</li>
+            <li><strong>Site web :</strong> <a href="https://sendit.ma">sendit.ma</a></li>
+        </ul>
+
+        <h2>13. Suppression des données</h2>
+        <p>Pour supprimer vos données :</p>
+        <ol>
+            <li>Désinstallez l'add-on depuis Google Sheets</li>
+            <li>Ou contactez-nous à chrittyassine@gmail.com</li>
+        </ol>
+        <p>Vos données seront supprimées immédiatement de nos systèmes (PropertiesService).</p>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Sendit. Tous droits réservés.</p>
+        <p style="margin-top: 10px;">
+            <a href="index.html">Retour à la page d'accueil</a> | 
+            <a href="mailto:chrittyassine@gmail.com">Contact</a>
+        </p>
+    </div>
+</body>
+</html>
