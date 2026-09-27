@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <style>
+    body {
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      font-size: 13px;
+      color: #202124;
+      padding: 16px;
+      margin: 0;
+      background: #fff;
+    }
+    .header {
+      text-align: center;
+      margin: -16px -16px 16px -16px;
+      padding: 16px;
+      background: #46508f;
+      color: #fff;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 500;
+      margin: 0 0 4px 0;
+    }
+    .header p { font-size: 12px; margin: 0; opacity: 0.9; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #5f6368;
+      font-size: 12px;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .info-box {
+      background: #f8f9fa;
+      padding: 10px;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: #5f6368;
+    }
+    .info-box a { color: #46508f; }
+    .btn { width: 100%; box-sizing: border-box; margin-bottom: 6px; }
+    .alert {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      display: none;
+    }
+    .alert.show { display: block; }
+    .alert-success { background: #e6f4ea; color: #137333; }
+    .alert-error { background: #fce8e6; color: #c5221f; }
+    .loading { display: none; text-align: center; padding: 16px; }
+    .loading.active { display: block; }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #46508f;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 8px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Configuration</h1>
+    <p>Connectez votre compte Sendit</p>
+  </div>
+
+  <div id="alertContainer"></div>
+
+  <div class="info-box">
+    Compte Sendit requis.
+    Connectez-vous sur <a href="https://app.sendit.ma" target="_blank" rel="noopener">app.sendit.ma</a>
+    → Intégration API → nouvel accès développeur → copiez la clé publique et la clé secrète.
+    Pas encore de compte ? Créez-en un sur le même site.
+  </div>
+
+  <form id="configForm">
+    <div class="form-group">
+      <label for="publicKey">Public Key *</label>
+      <input type="text" id="publicKey" required autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label for="secretKey">Secret Key *</label>
+      <input type="password" id="secretKey" required autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label for="pickupDistrict">Ville de ramassage *</label>
+      <select id="pickupDistrict" required>
+        <option value="">Entrez vos clés, puis chargez les villes</option>
+      </select>
+      <button type="button" class="btn" id="btnLoadCities" onclick="loadPickupDistricts(true)">Charger les villes</button>
+    </div>
+    <button type="submit" class="action btn" id="saveBtn">Enregistrer</button>
+    <button type="button" class="btn" onclick="google.script.host.close()">Annuler</button>
+  </form>
+
+  <div id="loadingContainer" class="loading">
+    <div class="spinner"></div>
+    <p id="loadingText">Test de connexion...</p>
+  </div>
+
+  <script>
+    window.onload = function() {
+      google.script.run
+        .withSuccessHandler(function(keys) {
+          if (keys.publicKey) {
+            document.getElementById('publicKey').value = keys.publicKey;
+          }
+          if (keys.secretKey) {
+            document.getElementById('secretKey').value = keys.secretKey;
+          }
+          if (keys.pickupDistrictId) {
+            window.selectedPickupDistrict = keys.pickupDistrictId;
+          }
+          if (keys.publicKey && keys.secretKey) {
+            loadPickupDistricts(false);
+          }
+        })
+        .getApiKeys();
+    };
+
+    function loadPickupDistricts(forceRefresh) {
+      var publicKey = document.getElementById('publicKey').value.trim();
+      var secretKey = document.getElementById('secretKey').value.trim();
+      if (!publicKey || !secretKey) {
+        showAlert('Entrez vos clés API, puis chargez les villes.', 'error');
+        return;
+      }
+
+      var select = document.getElementById('pickupDistrict');
+      select.innerHTML = '<option value="">Chargement des villes...</option>';
+      document.getElementById('btnLoadCities').disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          document.getElementById('btnLoadCities').disabled = false;
+          if (result.success && result.data) {
+            select.innerHTML = '<option value="">Sélectionnez une ville de ramassage</option>';
+            var pickupCount = 0;
+            result.data.forEach(function(district) {
+              if (district.pickup_district == 1) {
+                var option = document.createElement('option');
+                option.value = district.id;
+                option.textContent = district.name;
+                select.appendChild(option);
+                pickupCount++;
+              }
+            });
+            if (pickupCount === 0) {
+              select.innerHTML = '<option value="">Aucune ville de ramassage</option>';
+              showAlert('Aucune ville de ramassage n\'a été renvoyée pour ce compte.', 'error');
+              return;
+            }
+            if (window.selectedPickupDistrict) {
+              select.value = window.selectedPickupDistrict;
+            }
+          } else {
+            select.innerHTML = '<option value="">Erreur de chargement</option>';
+            showAlert(result.message || 'Erreur de chargement des villes', 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          document.getElementById('btnLoadCities').disabled = false;
+          select.innerHTML = '<option value="">Erreur de chargement</option>';
+          showAlert('Erreur: ' + error.message, 'error');
+        })
+        .fetchDistrictsForConfig(publicKey, secretKey, !!forceRefresh);
+    }
+
+    document.getElementById('configForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var publicKey = document.getElementById('publicKey').value.trim();
+      var secretKey = document.getElementById('secretKey').value.trim();
+      var pickupDistrictId = document.getElementById('pickupDistrict').value;
+
+      if (!publicKey || !secretKey) {
+        showAlert('Remplissez les clés API.', 'error');
+        return;
+      }
+      if (!pickupDistrictId) {
+        showAlert('Chargez les villes, puis sélectionnez une ville de ramassage.', 'error');
+        return;
+      }
+
+      showLoading();
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            showAlert(result.message, 'success');
+            setTimeout(function() {
+              google.script.host.close();
+            }, 1200);
+          } else {
+            showAlert(result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showAlert('Erreur: ' + error.message, 'error');
+        })
+        .saveApiKeys(publicKey, secretKey, pickupDistrictId);
+    });
+
+    function showLoading() {
+      document.getElementById('configForm').style.display = 'none';
+      document.getElementById('loadingContainer').classList.add('active');
+      document.getElementById('loadingText').textContent = 'Test de connexion...';
+    }
+
+    function hideLoading() {
+      document.getElementById('configForm').style.display = 'block';
+      document.getElementById('loadingContainer').classList.remove('active');
+    }
+
+    function showAlert(message, type) {
+      var container = document.getElementById('alertContainer');
+      container.innerHTML = '<div class="alert alert-' + type + ' show">' + message + '</div>';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <style>
+    body {
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      font-size: 13px;
+      color: #202124;
+      padding: 12px;
+      margin: 0;
+      background: #fff;
+      max-width: 300px;
+      overflow-x: hidden;
+    }
+    .header {
+      background: #46508f;
+      color: #fff;
+      padding: 12px;
+      margin: -12px -12px 12px -12px;
+    }
+    .header h1 {
+      font-size: 16px;
+      font-weight: 500;
+      margin: 0 0 2px 0;
+    }
+    .header p {
+      font-size: 12px;
+      margin: 0;
+      opacity: 0.9;
+    }
+    .card {
+      border: 1px solid #e8eaed;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .card h3 {
+      font-size: 13px;
+      font-weight: 500;
+      margin: 0 0 10px 0;
+      color: #46508f;
+    }
+    .btn {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 6px;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 500;
+      color: #5f6368;
+      font-size: 12px;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .alert {
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+    .alert-success { background: #e6f4ea; color: #137333; }
+    .alert-error { background: #fce8e6; color: #c5221f; }
+    .alert-warning { background: #fef7e0; color: #b06000; }
+    .info-box {
+      background: #f8f9fa;
+      padding: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #5f6368;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 16px;
+    }
+    .loading.active { display: block; }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #46508f;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 8px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .hidden { display: none; }
+    .confirm-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .confirm-actions .btn { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Sendit</h1>
+    <p>Gestion de colis</p>
+  </div>
+
+  <div id="alertContainer"></div>
+
+  <div id="notConfigured" class="hidden">
+    <div class="alert alert-warning">Configurez vos clés API Sendit pour commencer.</div>
+    <button class="action btn" id="btnOpenConfig" onclick="openConfig()">Configurer</button>
+  </div>
+
+  <div id="confirmPanel" class="card hidden">
+    <h3>Confirmation</h3>
+    <p id="confirmText" class="info-box"></p>
+    <div class="confirm-actions">
+      <button class="action btn" id="confirmYes">Confirmer</button>
+      <button class="btn" id="confirmNo">Annuler</button>
+    </div>
+  </div>
+
+  <div id="mainContent" class="hidden">
+    <div class="card">
+      <h3>Actions rapides</h3>
+      <button class="action btn" id="btnCreateFromRow" onclick="createFromRow()">Créer depuis la ligne</button>
+      <button class="btn" id="btnPrintLabels" onclick="printLabels()">Imprimer étiquettes</button>
+      <button class="btn" id="btnSync" onclick="askSync()">Synchroniser</button>
+      <button class="btn" id="btnTemplate" onclick="createTemplate()">Créer un modèle</button>
+    </div>
+
+    <div class="card">
+      <h3>Nouveau colis</h3>
+      <div class="form-group">
+        <label for="customerName">Nom du client *</label>
+        <input type="text" id="customerName" placeholder="Mohamed Alami">
+      </div>
+      <div class="form-group">
+        <label for="customerPhone">Téléphone *</label>
+        <input type="tel" id="customerPhone" placeholder="0612345678">
+      </div>
+      <div class="form-group">
+        <label for="customerAddress">Adresse *</label>
+        <textarea id="customerAddress" rows="2" placeholder="123 Rue Hassan II"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="districtSearch">Ville *</label>
+        <input type="text" id="districtSearch" list="districtsList" placeholder="Tapez pour rechercher" autocomplete="off">
+        <datalist id="districtsList"></datalist>
+        <input type="hidden" id="districtId">
+      </div>
+      <div class="form-group">
+        <label for="amount">Montant (DH)</label>
+        <input type="number" id="amount" step="0.01" placeholder="199">
+      </div>
+      <div class="form-group">
+        <label for="products">Produits</label>
+        <textarea id="products" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="reference">Référence</label>
+        <input type="text" id="reference">
+      </div>
+      <div class="form-group">
+        <label for="comment">Commentaire</label>
+        <textarea id="comment" rows="2"></textarea>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="allowOpen" checked>
+        <label for="allowOpen">Autoriser l'ouverture</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="allowTry" checked>
+        <label for="allowTry">Autoriser l'essai</label>
+      </div>
+      <button class="action btn" id="btnCreateManual" onclick="createDeliveryManual()">Créer le colis</button>
+    </div>
+
+    <div class="card">
+      <h3>Création en masse</h3>
+      <div class="info-box">Sélectionnez les lignes à envoyer (hors en-tête), puis confirmez. Seules les lignes « non traité » seront créées.</div>
+      <button class="btn" id="btnBulk" onclick="askBulk()">Créer la sélection</button>
+    </div>
+  </div>
+
+  <div id="loadingContainer" class="loading">
+    <div class="spinner"></div>
+    <p id="loadingText">Chargement...</p>
+  </div>
+
+  <script>
+    var districtsData = [];
+    var pendingAction = null;
+    var isConfigured = false;
+
+    window.onload = function() {
+      checkConfiguration();
+      document.getElementById('confirmYes').onclick = function() {
+        var action = pendingAction;
+        pendingAction = null;
+        hideConfirm();
+        if (action === 'sync') {
+          runSync();
+        } else if (action === 'bulk') {
+          runBulk();
+        }
+      };
+      document.getElementById('confirmNo').onclick = function() {
+        pendingAction = null;
+        hideConfirm();
+      };
+    };
+
+    function setButtonsDisabled(disabled) {
+      var buttons = document.querySelectorAll('button');
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].disabled = disabled;
+      }
+    }
+
+    function checkConfiguration() {
+      showLoading('Vérification de la configuration...');
+      google.script.run
+        .withSuccessHandler(function(configured) {
+          hideLoading();
+          isConfigured = !!configured;
+          if (isConfigured) {
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('notConfigured').classList.add('hidden');
+            loadDistricts();
+          } else {
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('notConfigured').classList.remove('hidden');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showAlert('Erreur de vérification: ' + error.message, 'error');
+        })
+        .areApiKeysConfigured();
+    }
+
+    function loadDistricts() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success && result.data) {
+            districtsData = result.data;
+            var datalist = document.getElementById('districtsList');
+            datalist.innerHTML = '';
+            result.data.forEach(function(district) {
+              var option = document.createElement('option');
+              option.value = district.name;
+              datalist.appendChild(option);
+            });
+            document.getElementById('districtSearch').addEventListener('input', function() {
+              var selectedText = this.value;
+              var matched = districtsData.filter(function(d) {
+                return d.name === selectedText ||
+                  (d.name + ' - ' + d.price + ' DH') === selectedText;
+              })[0];
+              document.getElementById('districtId').value = matched ? matched.id : '';
+            });
+          } else {
+            showAlert('Erreur de chargement des villes: ' + (result.message || 'Erreur inconnue'), 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          showAlert('Erreur de chargement des villes: ' + error.message, 'error');
+        })
+        .getDistricts();
+    }
+
+    function openConfig() {
+      google.script.run.showConfigDialog();
+    }
+
+    function createFromRow() {
+      showLoading('Création du colis...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            showAlert(result.message + (result.data && result.data.code ? ' Code: ' + result.data.code : ''), 'success');
+          } else {
+            showAlert(result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showAlert('Erreur: ' + error.message, 'error');
+        })
+        .createDeliveryFromSelectedRow();
+    }
+
+    function createDeliveryManual() {
+      var deliveryData = {
+        name: document.getElementById('customerName').value,
+        phone: document.getElementById('customerPhone').value,
+        address: document.getElementById('customerAddress').value,
+        district_id: document.getElementById('districtId').value,
+        amount: document.getElementById('amount').value,
+        products: document.getElementById('products').value,
+        reference: document.getElementById('reference').value,
+        comment: document.getElementById('comment').value,
+        allow_open: document.getElementById('allowOpen').checked,
+        allow_try: document.getElementById('allowTry').checked
+      };
+
+      if (!deliveryData.name || !deliveryData.phone || !deliveryData.address || !deliveryData.district_id) {
+        showAlert('Remplissez tous les champs obligatoires (*).', 'error');
+        return;
+      }
+
+      showLoading('Création du colis...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            showAlert(result.message + ' Code: ' + result.data.code, 'success');
+            var cityText = document.getElementById('districtSearch').value;
+            google.script.run.addDeliveryToSheet(result.data, deliveryData, cityText);
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customerAddress').value = '';
+            document.getElementById('districtSearch').value = '';
+            document.getElementById('districtId').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('products').value = '';
+            document.getElementById('reference').value = '';
+            document.getElementById('comment').value = '';
+          } else {
+            showAlert(result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showAlert('Erreur: ' + error.message, 'error');
+        })
+        .createDelivery(deliveryData);
+    }
+
+    function askSync() {
+      pendingAction = 'sync';
+      document.getElementById('confirmText').textContent =
+        'Mettre à jour les statuts de tous les colis de cette feuille ? Les colis déjà livrés, retournés, annulés ou refusés seront ignorés.';
+      document.getElementById('confirmPanel').classList.remove('hidden');
+    }
+
+    function runSync() {
+      showLoading('Synchronisation en cours...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result && result.success) {
+            showAlert(result.message, 'success');
+          } else {
+            showAlert((result && result.message) || 'Erreur de synchronisation', 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showAlert('Erreur: ' + error.message, 'error');
+        })
+        .syncAllDeliveryStatuses();
+    }
+
+    function createTemplate() {
+      showLoading('Création de la feuille modèle...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result && result.success) {
+            showAlert(result.message, 'success');
+          } else {
+            showAlert((result && result.message) || 'Erreur', 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showAlert('Erreur: ' + error.message, 'error');
+        })
+        .createTemplateSheet();
+    }
+
+    function printLabels() {
+      showLoading('Génération des étiquettes...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success && result.labelUrl) {
+            var a = document.createElement('a');
+            a.href = result.labelUrl;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.textContent = 'Ouvrir le PDF des étiquettes';
+            showAlert('Étiquettes générées. ', 'success');
+            document.getElementById('alertContainer').appendChild(a);
+          } else {
+            showAlert(result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showAlert('Erreur: ' + error.message, 'error');
+        })
+        .downloadLabelsForSelectedRows();
+    }
+
+    function askBulk() {
+      pendingAction = 'bulk';
+      document.getElementById('confirmText').textContent =
+        'Créer un colis pour chaque ligne sélectionnée au statut « non traité » ? Vérifiez les données avant de continuer.';
+      document.getElementById('confirmPanel').classList.remove('hidden');
+    }
+
+    function runBulk() {
+      showLoading('Création des colis en masse...');
+      google.script.run
+        .withSuccessHandler(function(result) {
+          hideLoading();
+          if (result.success) {
+            var data = result.data;
+            showAlert(
+              'Terminé. Succès: ' + data.success +
+              ', échecs: ' + data.failed +
+              (data.skipped ? ', ignorés: ' + data.skipped : ''),
+              data.failed ? 'warning' : 'success'
+            );
+          } else {
+            showAlert(result.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          hideLoading();
+          showAlert('Erreur: ' + error.message, 'error');
+        })
+        .createBulkDeliveriesFromSelection();
+    }
+
+    function hideConfirm() {
+      document.getElementById('confirmPanel').classList.add('hidden');
+    }
+
+    function showLoading(text) {
+      document.getElementById('loadingText').textContent = text;
+      document.getElementById('loadingContainer').classList.add('active');
+      document.getElementById('mainContent').classList.add('hidden');
+      document.getElementById('confirmPanel').classList.add('hidden');
+      setButtonsDisabled(true);
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingContainer').classList.remove('active');
+      setButtonsDisabled(false);
+      if (isConfigured) {
+        document.getElementById('mainContent').classList.remove('hidden');
+      }
+    }
+
+    function showAlert(message, type) {
+      var container = document.getElementById('alertContainer');
+      container.innerHTML = '';
+      var alert = document.createElement('div');
+      alert.className = 'alert alert-' + type;
+      alert.textContent = message;
+      container.appendChild(alert);
+    }
+  </script>
+</body>
+</html>

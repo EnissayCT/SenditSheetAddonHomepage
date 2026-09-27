@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <style>
+    body {
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      font-size: 13px;
+      color: #202124;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+    }
+    .header {
+      background: #46508f;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    .header h1 { font-size: 20px; font-weight: 500; margin: 0 0 6px 0; }
+    .header p { font-size: 13px; margin: 0; opacity: 0.95; }
+    .content { padding: 20px; }
+    .feature {
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+    .feature h3 { font-size: 13px; font-weight: 500; margin: 0 0 4px 0; }
+    .feature p { font-size: 12px; color: #5f6368; margin: 0; }
+    .steps { margin: 16px 0; }
+    .step { display: flex; margin-bottom: 8px; }
+    .step-number {
+      background: #46508f;
+      color: #fff;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .step-text { font-size: 12px; color: #5f6368; padding-top: 2px; }
+    .btn { width: 100%; box-sizing: border-box; margin-bottom: 6px; }
+    .footer {
+      text-align: center;
+      padding: 12px;
+      font-size: 11px;
+      color: #5f6368;
+    }
+    .footer a { color: #46508f; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Bienvenue sur Sendit</h1>
+    <p>Gérez vos colis depuis Google Sheets</p>
+  </div>
+
+  <div class="content">
+    <div class="feature">
+      <h3>Création</h3>
+      <p>Créez des colis depuis une ligne, un formulaire, ou une sélection de lignes.</p>
+    </div>
+    <div class="feature">
+      <h3>Suivi</h3>
+      <p>Synchronisez les statuts Sendit dans votre feuille, à la demande.</p>
+    </div>
+    <div class="feature">
+      <h3>Étiquettes</h3>
+      <p>Générez les PDF 10x10 pour les lignes sélectionnées.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-text">Créez un compte sur app.sendit.ma si besoin, puis copiez vos clés API (Public Key et Secret Key).</div>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-text">Collez les clés ici, chargez les villes, choisissez la ville de ramassage.</div>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-text">Créez une feuille modèle, puis créez vos colis.</div>
+      </div>
+    </div>
+
+    <button class="action btn" onclick="openConfig()">Configurer maintenant</button>
+    <button class="btn" onclick="google.script.host.close()">Plus tard</button>
+  </div>
+
+  <div class="footer">
+    Aide : <a href="https://app.sendit.ma" target="_blank" rel="noopener">app.sendit.ma</a>
+  </div>
+
+  <script>
+    function openConfig() {
+      google.script.run.showConfigDialog();
+      google.script.host.close();
+    }
+  </script>
+</body>
+</html>
